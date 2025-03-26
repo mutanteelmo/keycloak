@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    command: start-dev
+    environment:
+      # - KC_DB=dev-mem
+      ### Mysql
+      # - KC_DB=mysql
+      # - KC_DB_URL_HOST=172.17.0.2
+      # - KC_DB_URL_DATABASE=keycloak
+      # - KC_DB_USERNAME=root
+      # - KC_DB_PASSWORD=root
+      # - KC_DB_URL_PORT=3306
+      ###
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=postgres
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=senha_secreta
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./keycloak-data:/opt/keycloak
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: senha_secreta
+      POSTGRES_DB: keycloak
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
